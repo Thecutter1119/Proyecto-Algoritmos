@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+
+# Tensorflow
+*.h5
+*.pb
+*.ckpt.*
+*.meta
+*.index
+checkpoint
+
+# Misc
+.DS_Store
+*.log
