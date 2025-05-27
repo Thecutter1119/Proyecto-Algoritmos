@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Predicción de Complejidad</title>
+  </head>
+  <body>
+    <h1>Analizador de Complejidad Algorítmica</h1>
+    <form method="POST">
+      <textarea
+        name="code"
+        rows="15"
+        cols="80"
+        placeholder="Pega aquí tu código Python"
+      >
+{{ code }}</textarea
+      ><br /><br />
+      <button type="submit">Predecir Complejidad</button>
+    </form>
+
+    {% if result %}
+    <h2>Resultado:</h2>
+    <ul>
+      <li><strong>O:</strong> {{ result['O'] }}</li>
+      <li><strong>Ω:</strong> {{ result['Ω'] }}</li>
+      <li><strong>Θ:</strong> {{ result['Θ'] }}</li>
+    </ul>
+    {% endif %}
+  </body>
+</html>
