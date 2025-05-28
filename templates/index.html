@@ -20,11 +20,14 @@
 
     {% if result %}
     <h2>Resultado:</h2>
+    {% if result.get('error') %}
+    <p style="color: red">Error: {{ result['error'] }}</p>
+    {% else %}
     <ul>
-      <li><strong>O:</strong> {{ result['O'] }}</li>
-      <li><strong>Ω:</strong> {{ result['Ω'] }}</li>
-      <li><strong>Θ:</strong> {{ result['Θ'] }}</li>
+      <li><strong>Complejidad O:</strong> {{ result['O'] }}</li>
+      <li><strong>Complejidad Ω:</strong> {{ result['Ω'] }}</li>
+      <li><strong>Complejidad Θ:</strong> {{ result['Θ'] }}</li>
     </ul>
-    {% endif %}
+    {% endif %} {% endif %}
   </body>
 </html>

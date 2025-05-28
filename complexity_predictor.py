@@ -68,11 +68,20 @@ class ComplexityPredictor:
 
     def predict(self, code_string):
         """Predice las complejidades O, Ω y Θ para un código dado"""
-        vector = self.code_to_vector(code_string)
-        if vector is None:
-            return None
+        try:
+            vector = self.code_to_vector(code_string)
+            if vector is None:
+                print("Error: No se pudo vectorizar el código")
+                return None
 
-        vector = np.array([vector])  # Reshape para predicción
+            if not isinstance(vector, np.ndarray):
+                print("Error: Vector inválido generado")
+                return None
+
+            vector = np.array([vector])  # Reshape para predicción
+        except Exception as e:
+            print(f"Error durante la predicción: {str(e)}")
+            return None
         
         o_pred = np.argmax(self.o_model.predict(vector, verbose=0))
         omega_pred = np.argmax(self.omega_model.predict(vector, verbose=0))

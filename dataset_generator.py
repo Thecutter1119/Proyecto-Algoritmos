@@ -90,6 +90,7 @@ sorted_arr = quicksort(arr)
 
 def generate_dataset(num_samples=1000):
     generators = [
+        generate_constant_time, 
         generate_linear_search,
         generate_binary_search,
         generate_bubble_sort,
@@ -111,3 +112,15 @@ def generate_dataset(num_samples=1000):
         theta_labels.append(complexities['Θ'])
     
     return code_samples, o_labels, omega_labels, theta_labels
+
+def generate_constant_time():
+    code = """
+# Tiempo constante
+def constant_time(arr):
+    return arr[0] if arr else None
+
+# Ejemplo de uso
+arr = [1, 2, 3]
+result = constant_time(arr)
+"""
+    return code, {'O': 0, 'Ω': 0, 'Θ': 0}

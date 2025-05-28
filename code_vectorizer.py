@@ -3,7 +3,7 @@ import numpy as np
 from collections import defaultdict
 
 class CodeVectorizer:
-    def __init__(self, vector_size=100):
+    def __init__(self, vector_size=101):  # Aumentado a 101 para incluir nueva característica
         self.vector_size = vector_size
         self.node_types = [
             ast.For, ast.While, ast.If, ast.FunctionDef,
@@ -40,12 +40,9 @@ class CodeVectorizer:
             if isinstance(node, (ast.For, ast.While)):
                 features['nested_loops'] = max(features['nested_loops'], depth + 1)
                 
-                # Analizar variables del bucle
-                if isinstance(node, ast.For):
-                    if isinstance(node.target, ast.Name):
-                        features['loop_variables'].add(node.target.id)
+                if isinstance(node, ast.For) and isinstance(node.target, ast.Name):
+                    features['loop_variables'].add(node.target.id)
 
-                # Contar operaciones dentro del bucle
                 for child in ast.iter_child_nodes(node):
                     if isinstance(child, (ast.BinOp, ast.Compare, ast.Call)):
                         features['loop_operations'] += 1
@@ -80,8 +77,30 @@ class CodeVectorizer:
         visit(node)
         return features
 
+    def _detect_index_access(self, node):
+        """Detecta accesos directos tipo arr[0]"""
+        index_access_count = 0
+
+        class IndexAccessVisitor(ast.NodeVisitor):
+            def visit_Subscript(self, sub_node):
+                nonlocal index_access_count
+                index_access_count += 1
+                self.generic_visit(sub_node)
+
+        IndexAccessVisitor().visit(node)
+        return index_access_count
+
+
     def vectorize(self, code_string):
         """Convierte el código en un vector de características"""
+        if not isinstance(code_string, str):
+            print("Error: La entrada debe ser una cadena de texto")
+            return None
+            
+        if not code_string.strip():
+            print("Error: El código está vacío")
+            return None
+
         try:
             tree = ast.parse(code_string)
             
@@ -89,6 +108,7 @@ class CodeVectorizer:
             node_counts = self._count_node_types(tree)
             loop_features = self._extract_loop_features(tree)
             recursion_features = self._extract_recursion_features(tree)
+            index_access = self._detect_index_access(tree)
 
             # Crear vector de características
             features = []
@@ -103,16 +123,18 @@ class CodeVectorizer:
 
             # Agregar características de bucles
             features.extend([
-                loop_features['nested_loops'] / 5,  # Normalizar por profundidad máxima esperada
-                len(loop_features['loop_variables']) / 10,  # Normalizar por número máximo esperado
-                loop_features['loop_operations'] / 20  # Normalizar por número máximo esperado
+                loop_features['nested_loops'] / 5,
+                len(loop_features['loop_variables']) / 10,
+                loop_features['loop_operations'] / 20
             ])
 
             # Agregar características de recursión
             features.extend([
                 1 if recursion_features['has_recursion'] else 0,
-                recursion_features['recursive_calls'] / 5  # Normalizar por número máximo esperado
+                recursion_features['recursive_calls'] / 5
             ])
+
+            features.append(index_access / 10)
 
             # Asegurar dimensión consistente
             features = np.array(features)
@@ -126,3 +148,4 @@ class CodeVectorizer:
         except Exception as e:
             print(f"Error al vectorizar el código: {e}")
             return np.zeros(self.vector_size)
+
