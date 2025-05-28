@@ -2,7 +2,7 @@ import numpy as np
 from tensorflow.keras import layers, models
 from code_vectorizer import CodeVectorizer
 
-class ComplexityPredictor:
+class ComplexityPredictor: 
     def __init__(self, vector_size=100):
         self.vector_size = vector_size
         self.vectorizer = CodeVectorizer(vector_size=vector_size)
@@ -69,6 +69,7 @@ class ComplexityPredictor:
     def predict(self, code_string):
         """Predice las complejidades O, Ω y Θ para un código dado"""
         try:
+            print("Vectorizando código...")
             vector = self.code_to_vector(code_string)
             if vector is None:
                 print("Error: No se pudo vectorizar el código")
@@ -79,19 +80,34 @@ class ComplexityPredictor:
                 return None
 
             vector = np.array([vector])  # Reshape para predicción
+            print("Vector generado correctamente, realizando predicción...")
+
+            # Realizar predicciones
+            o_pred = self.o_model.predict(vector, verbose=0)
+            omega_pred = self.omega_model.predict(vector, verbose=0)
+            theta_pred = self.theta_model.predict(vector, verbose=0)
+
+            # Obtener los índices de las predicciones con mayor probabilidad
+            o_idx = np.argmax(o_pred)
+            omega_idx = np.argmax(omega_pred)
+            theta_idx = np.argmax(theta_pred)
+
+            print(f"Índices predichos - O: {o_idx}, Ω: {omega_idx}, Θ: {theta_idx}")
+
+            # Convertir índices a notación
+            result = {
+                'O': self._complexity_class_to_string(o_idx),
+                'Ω': self._complexity_class_to_string(omega_idx),
+                'Θ': self._complexity_class_to_string(theta_idx)
+            }
+            print(f"Predicción final: {result}")
+            return result
+
         except Exception as e:
             print(f"Error durante la predicción: {str(e)}")
+            import traceback
+            print(f"Traceback completo: {traceback.format_exc()}")
             return None
-        
-        o_pred = np.argmax(self.o_model.predict(vector, verbose=0))
-        omega_pred = np.argmax(self.omega_model.predict(vector, verbose=0))
-        theta_pred = np.argmax(self.theta_model.predict(vector, verbose=0))
-        
-        return {
-            'O': self._complexity_class_to_string(o_pred),
-            'Ω': self._complexity_class_to_string(omega_pred),
-            'Θ': self._complexity_class_to_string(theta_pred)
-        }
 
     def _complexity_class_to_string(self, class_index):
         """Convierte el índice de clase a su representación en string"""

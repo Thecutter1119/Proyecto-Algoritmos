@@ -1,6 +1,6 @@
 import numpy as np
 
-def generate_linear_search():
+def generate_linear_search(): #Crea un array aleatorio con un elemento objetivo
     n = np.random.randint(5, 15)
     arr = np.random.randint(1, 100, size=n).tolist()
     target = np.random.choice(arr)
@@ -88,7 +88,7 @@ sorted_arr = quicksort(arr)
 """
     return code, {'O': 4, 'Ω': 2, 'Θ': 3}  # O(n²), Ω(n log n), Θ(n log n)
 
-def generate_dataset(num_samples=1000):
+def generate_dataset(num_samples=1000): #Genera un conjunto de datos de prueba 
     generators = [
         generate_constant_time, 
         generate_linear_search,

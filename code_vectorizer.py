@@ -1,16 +1,16 @@
-import ast
-import numpy as np
-from collections import defaultdict
+import ast #para pasar el código a un AST y poder analizarlo
+import numpy as np #para manejar los vectores
+from collections import defaultdict #para contar los nodos
 
 class CodeVectorizer:
-    def __init__(self, vector_size=101):  # Aumentado a 101 para incluir nueva característica
-        self.vector_size = vector_size
-        self.node_types = [
+    def __init__(self, vector_size=101):  # Tamaño del vector de salida y sus caracteristicas
+        self.vector_size = vector_size 
+        self.node_types = [ 
             ast.For, ast.While, ast.If, ast.FunctionDef,
             ast.Call, ast.Compare, ast.BinOp, ast.Return,
             ast.Assign, ast.Name, ast.Num, ast.List
         ]
-        self.feature_count = defaultdict(int)
+        self.feature_count = defaultdict(int)  
 
     def _count_node_types(self, node):
         """Cuenta los diferentes tipos de nodos en el AST"""
@@ -18,8 +18,8 @@ class CodeVectorizer:
         for node_type in self.node_types:
             counts[node_type.__name__] = 0
 
-        def visit(node):
-            for node_type in self.node_types:
+        def visit(node): # función recursiva para visitar cada nodo del AST
+            for node_type in self.node_types: # si el nodo es de un tipo que se cuenta, lo suma
                 if isinstance(node, node_type):
                     counts[node_type.__name__] += 1
             for child in ast.iter_child_nodes(node):
@@ -28,12 +28,12 @@ class CodeVectorizer:
         visit(node)
         return counts
 
-    def _extract_loop_features(self, node):
+    def _extract_loop_features(self, node): # bucles for, while, i
         """Extrae características específicas de los bucles"""
         features = {
-            'nested_loops': 0,
+            'nested_loops': 0, 
             'loop_variables': set(),
-            'loop_operations': 0
+            'loop_operations': 0 
         }
 
         def visit(node, depth=0):
@@ -54,7 +54,7 @@ class CodeVectorizer:
         visit(node)
         return features
 
-    def _extract_recursion_features(self, node, function_name=None):
+    def _extract_recursion_features(self, node, function_name=None): # recursividad
         """Detecta y analiza patrones de recursión"""
         features = {
             'has_recursion': False,
@@ -62,11 +62,11 @@ class CodeVectorizer:
             'recursive_calls': 0
         }
 
-        def visit(node, current_function=None):
+        def visit(node, current_function=None): # función recursiva para visitar cada nodo del AST
             if isinstance(node, ast.FunctionDef):
                 current_function = node.name
 
-            if isinstance(node, ast.Call) and hasattr(node.func, 'id'):
+            if isinstance(node, ast.Call) and hasattr(node.func, 'id'): 
                 if node.func.id == current_function:
                     features['has_recursion'] = True
                     features['recursive_calls'] += 1
@@ -77,11 +77,11 @@ class CodeVectorizer:
         visit(node)
         return features
 
-    def _detect_index_access(self, node):
+    def _detect_index_access(self, node): # acceso a listas expresiones de índice arr[0] arr[1]
         """Detecta accesos directos tipo arr[0]"""
         index_access_count = 0
 
-        class IndexAccessVisitor(ast.NodeVisitor):
+        class IndexAccessVisitor(ast.NodeVisitor): # clase para visitar nodos del AST
             def visit_Subscript(self, sub_node):
                 nonlocal index_access_count
                 index_access_count += 1
@@ -91,13 +91,13 @@ class CodeVectorizer:
         return index_access_count
 
 
-    def vectorize(self, code_string):
+    def vectorize(self, code_string): # vectorizar el código
         """Convierte el código en un vector de características"""
         if not isinstance(code_string, str):
             print("Error: La entrada debe ser una cadena de texto")
             return None
             
-        if not code_string.strip():
+        if not code_string.strip(): 
             print("Error: El código está vacío")
             return None
 
