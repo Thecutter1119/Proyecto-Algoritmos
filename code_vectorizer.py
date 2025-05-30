@@ -148,4 +148,4 @@ class CodeVectorizer:
         except Exception as e:
             print(f"Error al vectorizar el código: {e}")
             return np.zeros(self.vector_size)
-
+    
