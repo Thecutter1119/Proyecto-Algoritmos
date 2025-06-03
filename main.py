@@ -1,5 +1,5 @@
 from complexity_predictor import ComplexityPredictor
-from dataset_generator import generate_dataset
+from combined_dataset_generator import generate_dataset
 import numpy as np
 
 def validate_code(code):
@@ -33,12 +33,12 @@ def test_predictor(predictor):
         # Algoritmo O(n log n)
         {
             "code": "def merge_sort(arr):\n    if len(arr) <= 1:\n        return arr\n    mid = len(arr) // 2\n    left = merge_sort(arr[:mid])\n    right = merge_sort(arr[mid:])\n    return merge(left, right)\n\ndef merge(left, right):\n    result = []\n    i = j = 0\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            result.append(left[i])\n            i += 1\n        else:\n            result.append(right[j])\n            j += 1\n    result.extend(left[i:])\n    result.extend(right[j:])\n    return result",
-            "expected": {'O': 3, 'Ω': 2, 'Θ': 3}
+            "expected": {'O': 3, 'Ω': 3, 'Θ': 3}
         },
         
         # Algoritmo O(n²)
         {
-            "code": "def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n-i-1):\n            if arr[j] > arr[j+1]:\n                arr[j], arr[j+1] = arr[j+1], arr[j]\n    return arr",
+            "code": "def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        swapped = False\n        for j in range(0, n-i-1):\n            if arr[j] > arr[j+1]:\n                arr[j], arr[j+1] = arr[j+1], arr[j]\n                swapped = True\n        if not swapped:\n            break\n    return arr",
             "expected": {'O': 4, 'Ω': 2, 'Θ': 4}
         }
     ]
@@ -108,9 +108,11 @@ def main():
     
     print("\nResultados de la evaluación:")
     for complexity_type, metrics in evaluation.items():
-        print(f"\nModelo {complexity_type}:")
-        print(f"  - Pérdida: {metrics['loss']:.4f}")
-        print(f"  - Precisión: {metrics['accuracy']:.4f}")
+        if complexity_type in ['O', 'Ω', 'Θ']:
+            print(f"\nModelo {complexity_type}:")
+            print(f"  - Pérdida: {metrics['loss']:.4f}")
+            print(f"  - Precisión: {metrics['accuracy']:.4f}")
+
 
     # Probar con casos de ejemplo
     test_predictor(predictor)
