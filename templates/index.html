@@ -2,32 +2,703 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>Predicción de Complejidad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analizador de Algoritmos</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: #333;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        color: white;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+      }
+
+      .input-group {
+        margin-bottom: 20px;
+      }
+
+      .input-group label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: #4a5568;
+      }
+
+      .input-group textarea {
+        width: 100%;
+        height: 200px;
+        padding: 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-family: monospace;
+        font-size: 14px;
+        resize: vertical;
+      }
+
+      .input-group select {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 16px;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .result {
+        background: #1a202c;
+        color: #e2e8f0;
+        padding: 20px;
+        border-radius: 12px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        margin-top: 20px;
+      }
+
+      .error {
+        color: #f56565;
+        margin-top: 10px;
+      }
+
+      .loading {
+        text-align: center;
+        margin: 20px 0;
+        display: none;
+      }
+
+      .loading .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+      }
+
+      .examples-section {
+        margin-top: 20px;
+      }
+
+      .example-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+
+      .example-btn {
+        background: rgba(102, 126, 234, 0.1);
+        color: #4a5568;
+        border: 1px solid #667eea;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .example-btn:hover {
+        background: rgba(102, 126, 234, 0.2);
+      }
+
+      .sorting-section {
+        margin-top: 30px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+      }
+
+      .sorting-controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .sorting-input {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .sorting-visualizer {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .array-display {
+        display: flex;
+        align-items: flex-end;
+        height: 200px;
+        gap: 2px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+      }
+
+      .array-bar {
+        flex: 1;
+        background: #667eea;
+        transition: height 0.3s ease;
+      }
+
+      .stats-panel {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </head>
   <body>
-    <h1>Analizador de Complejidad Algorítmica</h1>
-    <form method="POST">
-      <textarea
-        name="code"
-        rows="15"
-        cols="80"
-        placeholder="Pega aquí tu código Python"
-      >
-{{ code }}</textarea
-      ><br /><br />
-      <button type="submit">Predecir Complejidad</button>
-    </form>
+    <div class="container">
+      <div class="header">
+        <h1>🔍 Analizador de Algoritmos</h1>
+        <p>
+          Analiza la complejidad y detecta algoritmos de ordenamiento y
+          estructuras de datos
+        </p>
+      </div>
 
-    {% if result %}
-    <h2>Resultado:</h2>
-    {% if result.get('error') %}
-    <p style="color: red">Error: {{ result['error'] }}</p>
-    {% else %}
-    <ul>
-      <li><strong>Complejidad O:</strong> {{ result['O'] }}</li>
-      <li><strong>Complejidad Ω:</strong> {{ result['Ω'] }}</li>
-      <li><strong>Complejidad Θ:</strong> {{ result['Θ'] }}</li>
-    </ul>
-    {% endif %} {% endif %}
+      <form id="analysisForm" class="card">
+        <div class="input-group">
+          <label for="code">Código Python:</label>
+          <textarea
+            id="code"
+            name="code"
+            placeholder="Ingresa tu código aquí..."
+          >
+{{ code }}</textarea
+          >
+        </div>
+
+        <div class="input-group">
+          <label for="prediction_type">Tipo de Análisis:</label>
+          <select id="prediction_type" name="prediction_type">
+            <option value="auto">Detección Automática</option>
+            <option value="sorting">Algoritmo de Ordenamiento</option>
+            <option value="complexity">Complejidad Algorítmica</option>
+          </select>
+        </div>
+
+        <div class="examples-section">
+          <h3>Ejemplos de Código:</h3>
+          <div class="example-buttons">
+            <button
+              type="button"
+              class="example-btn"
+              onclick="loadExample('bubble_sort')"
+            >
+              Bubble Sort
+            </button>
+            <button
+              type="button"
+              class="example-btn"
+              onclick="loadExample('quick_sort')"
+            >
+              Quick Sort
+            </button>
+            <button
+              type="button"
+              class="example-btn"
+              onclick="loadExample('merge_sort')"
+            >
+              Merge Sort
+            </button>
+            <button
+              type="button"
+              class="example-btn"
+              onclick="loadExample('binary_tree')"
+            >
+              Árbol Binario
+            </button>
+            <button
+              type="button"
+              class="example-btn"
+              onclick="loadExample('binary_search_tree')"
+            >
+              Árbol Binario de Búsqueda
+            </button>
+            <button
+              type="button"
+              class="example-btn"
+              onclick="loadExample('avl_tree')"
+            >
+              Árbol AVL
+            </button>
+          </div>
+        </div>
+
+        <div class="sorting-section">
+          <h3>Panel de Control de Ordenamiento</h3>
+          <div class="sorting-controls">
+            <div class="sorting-input">
+              <label for="input-array">Datos a Ordenar:</label>
+              <input
+                type="text"
+                id="input-array"
+                placeholder="Números separados por comas"
+                class="form-control"
+              />
+              <div class="btn-group" style="margin-top: 10px">
+                <button
+                  type="button"
+                  class="btn"
+                  onclick="generateRandomData()"
+                >
+                  Generar Aleatorio
+                </button>
+                <button type="button" class="btn" onclick="clearData()">
+                  Limpiar
+                </button>
+              </div>
+            </div>
+            <div class="sorting-input">
+              <label for="array-size">Tamaño del Array:</label>
+              <input
+                type="number"
+                id="array-size"
+                value="20"
+                min="5"
+                max="100"
+                class="form-control"
+              />
+              <label for="data-type">Tipo de Datos:</label>
+              <select id="data-type" class="form-control">
+                <option value="random">Aleatorio</option>
+                <option value="nearly-sorted">Casi Ordenado</option>
+                <option value="reversed">Invertido</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="sorting-visualizer">
+            <div class="array-display" id="array-container"></div>
+            <div class="stats-panel">
+              <div class="stat-card">
+                <div class="stat-label">Comparaciones</div>
+                <div class="stat-value" id="comparisons">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Intercambios</div>
+                <div class="stat-value" id="swaps">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Tiempo (ms)</div>
+                <div class="stat-value" id="time">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button type="submit" class="btn">Analizar</button>
+          <button type="button" class="btn" onclick="clearForm()">
+            Limpiar
+          </button>
+        </div>
+
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Analizando código...</p>
+        </div>
+
+        <div id="result" class="result">
+          {% if result %} {% if result.error %}
+          <div class="error">{{ result.error }}</div>
+          {% else %} {% if result.type == 'sorting' %} Algoritmo Detectado: {{
+          result.algorithm }} Confianza: {{ result.confidence }} Probabilidades:
+          {% for alg, prob in result.all_probabilities.items() %} {{ alg }}: {{
+          "%.4f"|format(prob) }} {% endfor %} {% elif result.type ==
+          'complexity' %} Complejidad Temporal: O({{ result.O }}) Ω({{ result.Ω
+          }}) Θ({{ result.Θ }}) {% endif %} {% endif %} {% else %} Ingresa tu
+          código y presiona "Analizar" para comenzar. {% endif %}
+        </div>
+      </form>
+    </div>
+
+    <script>
+      const form = document.getElementById("analysisForm");
+      const loading = document.querySelector(".loading");
+      const result = document.getElementById("result");
+      const codeTextarea = document.getElementById("code");
+      const arrayContainer = document.getElementById("array-container");
+      const comparisonsElement = document.getElementById("comparisons");
+      const swapsElement = document.getElementById("swaps");
+      const timeElement = document.getElementById("time");
+
+      let currentArray = [];
+      let comparisons = 0;
+      let swaps = 0;
+      let startTime = 0;
+
+      function generateRandomData() {
+        const size = parseInt(document.getElementById("array-size").value);
+        const type = document.getElementById("data-type").value;
+
+        currentArray = Array.from({ length: size }, (_, i) => i + 1);
+
+        switch (type) {
+          case "random":
+            currentArray.sort(() => Math.random() - 0.5);
+            break;
+          case "nearly-sorted":
+            for (let i = 0; i < size * 0.1; i++) {
+              const idx1 = Math.floor(Math.random() * size);
+              const idx2 = Math.floor(Math.random() * size);
+              [currentArray[idx1], currentArray[idx2]] = [
+                currentArray[idx2],
+                currentArray[idx1],
+              ];
+            }
+            break;
+          case "reversed":
+            currentArray.reverse();
+            break;
+        }
+
+        document.getElementById("input-array").value = currentArray.join(", ");
+        updateArrayVisualization();
+        resetStats();
+      }
+
+      function clearData() {
+        document.getElementById("input-array").value = "";
+        currentArray = [];
+        updateArrayVisualization();
+        resetStats();
+      }
+
+      function resetStats() {
+        comparisons = 0;
+        swaps = 0;
+        startTime = 0;
+        updateStats();
+      }
+
+      function updateStats() {
+        comparisonsElement.textContent = comparisons;
+        swapsElement.textContent = swaps;
+        if (startTime > 0) {
+          timeElement.textContent = Math.round(performance.now() - startTime);
+        } else {
+          timeElement.textContent = 0;
+        }
+      }
+
+      function updateArrayVisualization() {
+        arrayContainer.innerHTML = "";
+        const maxVal = Math.max(...currentArray, 1);
+
+        currentArray.forEach((value) => {
+          const bar = document.createElement("div");
+          bar.className = "array-bar";
+          bar.style.height = `${(value / maxVal) * 100}%`;
+          arrayContainer.appendChild(bar);
+        });
+      }
+
+      const examples = {
+        bubble_sort: `def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+    return arr`,
+        quick_sort: `def quick_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quick_sort(left) + middle + quick_sort(right)`,
+        merge_sort: `def merge_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    
+    mid = len(arr) // 2
+    left = merge_sort(arr[:mid])
+    right = merge_sort(arr[mid:])
+    
+    return merge(left, right)
+
+def merge(left, right):
+    result = []
+    i = j = 0
+    
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+    
+    result.extend(left[i:])
+    result.extend(right[j:])
+    return result`,
+        binary_tree: `class Node:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+class BinaryTree:
+    def __init__(self):
+        self.root = None
+
+    def insert(self, value):
+        if not self.root:
+            self.root = Node(value)
+        else:
+            self._insert_recursive(self.root, value)
+
+    def _insert_recursive(self, node, value):
+        if value < node.value:
+            if node.left is None:
+                node.left = Node(value)
+            else:
+                self._insert_recursive(node.left, value)
+        else:
+            if node.right is None:
+                node.right = Node(value)
+            else:
+                self._insert_recursive(node.right, value)`,
+        binary_search_tree: `class Node:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+class BinarySearchTree:
+    def __init__(self):
+        self.root = None
+
+    def insert(self, value):
+        if not self.root:
+            self.root = Node(value)
+            return
+        current = self.root
+        while True:
+            if value < current.value:
+                if current.left is None:
+                    current.left = Node(value)
+                    break
+                current = current.left
+            else:
+                if current.right is None:
+                    current.right = Node(value)
+                    break
+                current = current.right
+
+    def search(self, value):
+        current = self.root
+        while current:
+            if current.value == value:
+                return True
+            elif value < current.value:
+                current = current.left
+            else:
+                current = current.right
+        return False`,
+        avl_tree: `class Node:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+        self.height = 1
+
+class AVLTree:
+    def __init__(self):
+        self.root = None
+
+    def height(self, node):
+        if not node:
+            return 0
+        return node.height
+
+    def balance_factor(self, node):
+        if not node:
+            return 0
+        return self.height(node.left) - self.height(node.right)
+
+    def update_height(self, node):
+        if not node:
+            return
+        node.height = max(self.height(node.left), self.height(node.right)) + 1
+
+    def right_rotate(self, y):
+        x = y.left
+        T2 = x.right
+        x.right = y
+        y.left = T2
+        self.update_height(y)
+        self.update_height(x)
+        return x
+
+    def left_rotate(self, x):
+        y = x.right
+        T2 = y.left
+        y.left = x
+        x.right = T2
+        self.update_height(x)
+        self.update_height(y)
+        return y
+
+    def insert(self, root, value):
+        if not root:
+            return Node(value)
+
+        if value < root.value:
+            root.left = self.insert(root.left, value)
+        elif value > root.value:
+            root.right = self.insert(root.right, value)
+        else:
+            return root
+
+        self.update_height(root)
+        balance = self.balance_factor(root)
+
+        # Left Left Case
+        if balance > 1 and value < root.left.value:
+            return self.right_rotate(root)
+
+        # Right Right Case
+        if balance < -1 and value > root.right.value:
+            return self.left_rotate(root)
+
+        # Left Right Case
+        if balance > 1 and value > root.left.value:
+            root.left = self.left_rotate(root.left)
+            return self.right_rotate(root)
+
+        # Right Left Case
+        if balance < -1 and value < root.right.value:
+            root.right = self.right_rotate(root.right)
+            return self.left_rotate(root)
+
+        return root`,
+      };
+
+      function loadExample(type) {
+        codeTextarea.value = examples[type];
+      }
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        loading.style.display = "block";
+        result.style.display = "none";
+
+        const formData = new FormData(form);
+        try {
+          const response = await fetch("/", {
+            method: "POST",
+            body: formData,
+          });
+          const html = await response.text();
+          const tempDiv = document.createElement("div");
+          tempDiv.innerHTML = html;
+          const newResult = tempDiv.querySelector("#result");
+          result.innerHTML = newResult.innerHTML;
+        } catch (error) {
+          result.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        } finally {
+          loading.style.display = "none";
+          result.style.display = "block";
+        }
+      });
+
+      function clearForm() {
+        form.reset();
+        result.innerHTML =
+          'Ingresa tu código y presiona "Analizar" para comenzar.';
+      }
+
+      // Inicializar la visualización
+      generateRandomData();
+    </script>
   </body>
 </html>
