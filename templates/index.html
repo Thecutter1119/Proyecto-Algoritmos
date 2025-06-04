@@ -351,26 +351,27 @@
                 <option value="reversed">Invertido</option>
               </select>
             </div>
-          </div>
-
-          <div class="sorting-visualizer">
-            <div class="array-display" id="array-container"></div>
-            <div class="stats-panel">
-              <div class="stat-card">
-                <div class="stat-label">Comparaciones</div>
-                <div class="stat-value" id="comparisons">0</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-label">Intercambios</div>
-                <div class="stat-value" id="swaps">0</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-label">Tiempo (ms)</div>
-                <div class="stat-value" id="time">0</div>
-              </div>
+            <div class="sorting-input">
+              <label for="sorting-algorithm">Algoritmo de Ordenamiento:</label>
+              <select id="sorting-algorithm" class="form-control">
+                <option value="bubble">Bubble Sort</option>
+                <option value="selection">Selection Sort</option>
+                <option value="insertion">Insertion Sort</option>
+                <option value="merge">Merge Sort</option>
+                <option value="quick">Quick Sort</option>
+                <option value="heap">Heap Sort</option>
+              </select>
+              <button type="button" class="btn" onclick="sortArray()" style="margin-top: 10px">
+                Ordenar Array
+              </button>
+              <div class="sorting-input">
+                <label>Resultado Ordenado:</label>
+                <div id="sorted-result" style="background: #f9f9f9; padding: 10px; border-radius: 8px; min-height: 40px;">
+                  —
+                </div>
+              </div>              
             </div>
           </div>
-        </div>
 
         <div class="btn-group">
           <button type="submit" class="btn">Analizar</button>
@@ -478,6 +479,7 @@
           arrayContainer.appendChild(bar);
         });
       }
+      
 
       const examples = {
         bubble_sort: `def bubble_sort(arr):
@@ -696,9 +698,245 @@ class AVLTree:
         result.innerHTML =
           'Ingresa tu código y presiona "Analizar" para comenzar.';
       }
+    
 
-      // Inicializar la visualización
-      generateRandomData();
+  async function sortArray() {
+    const rawArray = document.getElementById("input-array").value;
+    const array = rawArray.split(',').map(num => parseInt(num.trim())).filter(n => !isNaN(n));
+    const algoritmo = document.getElementById("sorting-algorithm").value;
+
+    const response = await fetch("/ordenar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ array, algoritmo })
+    });
+
+    const result = await response.json();
+
+    if (result.ordenado) {
+  document.getElementById("array-container").innerHTML = result.ordenado
+    .map((val) => `<div class="array-bar" style="height: ${(val / Math.max(...result.ordenado)) * 100}%"></div>`)
+    .join("");
+  comparisonsElement.textContent = "—";
+  swapsElement.textContent = "—";
+  timeElement.textContent = "—";
+  document.getElementById("sorted-result").textContent = result.ordenado.join(", ");
+} else {
+      alert("Error: " + (result.error || "no se pudo ordenar"));
+    }
+  }
+
+  generateRandomData();
     </script>
   </body>
 </html>
+---------------------------------------en caso de no funcionar---------------------------
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function bubbleSort(arr) {
+  const n = arr.length;
+  for (let i = 0; i < n - 1; i++) {
+    for (let j = 0; j < n - i - 1; j++) {
+      comparisons++;
+      if (arr[j] > arr[j + 1]) {
+        swaps++;
+        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+        updateArrayVisualization();
+        await sleep(50);
+      }
+    }
+  }
+}
+
+async function selectionSort(arr) {
+  const n = arr.length;
+  for (let i = 0; i < n - 1; i++) {
+    let minIdx = i;
+    for (let j = i + 1; j < n; j++) {
+      comparisons++;
+      if (arr[j] < arr[minIdx]) {
+        minIdx = j;
+      }
+    }
+    if (minIdx !== i) {
+      swaps++;
+      [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
+      updateArrayVisualization();
+      await sleep(50);
+    }
+  }
+}
+
+async function insertionSort(arr) {
+  const n = arr.length;
+  for (let i = 1; i < n; i++) {
+    let key = arr[i];
+    let j = i - 1;
+    while (j >= 0 && arr[j] > key) {
+      comparisons++;
+      swaps++;
+      arr[j + 1] = arr[j];
+      j--;
+      updateArrayVisualization();
+      await sleep(50);
+    }
+    arr[j + 1] = key;
+  }
+}
+
+async function merge(arr, l, m, r) {
+  const n1 = m - l + 1;
+  const n2 = r - m;
+  const L = new Array(n1);
+  const R = new Array(n2);
+
+  for (let i = 0; i < n1; i++) L[i] = arr[l + i];
+  for (let j = 0; j < n2; j++) R[j] = arr[m + 1 + j];
+
+  let i = 0, j = 0, k = l;
+  while (i < n1 && j < n2) {
+    comparisons++;
+    if (L[i] <= R[j]) {
+      arr[k] = L[i];
+      i++;
+    } else {
+      arr[k] = R[j];
+      j++;
+    }
+    swaps++;
+    k++;
+    updateArrayVisualization();
+    await sleep(50);
+  }
+
+  while (i < n1) {
+    arr[k] = L[i];
+    i++;
+    k++;
+    swaps++;
+    updateArrayVisualization();
+    await sleep(50);
+  }
+
+  while (j < n2) {
+    arr[k] = R[j];
+    j++;
+    k++;
+    swaps++;
+    updateArrayVisualization();
+    await sleep(50);
+  }
+}
+
+async function mergeSort(arr, l, r) {
+  if (l < r) {
+    const m = Math.floor((l + r) / 2);
+    await mergeSort(arr, l, m);
+    await mergeSort(arr, m + 1, r);
+    await merge(arr, l, m, r);
+  }
+}
+
+async function partition(arr, low, high) {
+  const pivot = arr[high];
+  let i = low - 1;
+
+  for (let j = low; j < high; j++) {
+    comparisons++;
+    if (arr[j] < pivot) {
+      i++;
+      swaps++;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+      updateArrayVisualization();
+      await sleep(50);
+    }
+  }
+
+  swaps++;
+  [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
+  updateArrayVisualization();
+  await sleep(50);
+  return i + 1;
+}
+
+async function quickSort(arr, low, high) {
+  if (low < high) {
+    const pi = await partition(arr, low, high);
+    await quickSort(arr, low, pi - 1);
+    await quickSort(arr, pi + 1, high);
+  }
+}
+
+async function heapify(arr, n, i) {
+  let largest = i;
+  const left = 2 * i + 1;
+  const right = 2 * i + 2;
+
+  comparisons++;
+  if (left < n && arr[left] > arr[largest]) {
+    largest = left;
+  }
+
+  comparisons++;
+  if (right < n && arr[right] > arr[largest]) {
+    largest = right;
+  }
+
+  if (largest !== i) {
+    swaps++;
+    [arr[i], arr[largest]] = [arr[largest], arr[i]];
+    updateArrayVisualization();
+    await sleep(50);
+    await heapify(arr, n, largest);
+  }
+}
+
+async function heapSort(arr) {
+  const n = arr.length;
+
+  for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+    await heapify(arr, n, i);
+  }
+
+  for (let i = n - 1; i > 0; i--) {
+    swaps++;
+    [arr[0], arr[i]] = [arr[i], arr[0]];
+    updateArrayVisualization();
+    await sleep(50);
+    await heapify(arr, i, 0);
+  }
+}
+
+async function sortArray() {
+  const algorithm = document.getElementById('sorting-algorithm').value;
+  resetStats();
+  startTime = performance.now();
+
+  switch (algorithm) {
+    case 'bubble':
+      await bubbleSort(currentArray);
+      break;
+    case 'selection':
+      await selectionSort(currentArray);
+      break;
+    case 'insertion':
+      await insertionSort(currentArray);
+      break;
+    case 'merge':
+      await mergeSort(currentArray, 0, currentArray.length - 1);
+      break;
+    case 'quick':
+      await quickSort(currentArray, 0, currentArray.length - 1);
+      break;
+    case 'heap':
+      await heapSort(currentArray);
+      break;
+  }
+
+  updateStats();
+}
+</script>

@@ -1,6 +1,7 @@
 import numpy as np
 
 def generate_arbol_binario():
+    # Generar 7 valores aleatorios
     valores = np.random.randint(1, 100, size=7).tolist()
 
     code = f"""
@@ -40,6 +41,7 @@ inorden(raiz)
 
 
 def generate_pilas():
+    # Generar 7 valores aleatorios
     n = np.random.randint(5, 15)
     arr = np.random.randint(1, 100, size=n).tolist()
 
@@ -78,6 +80,7 @@ while not pila.esta_vacia():
     return code, {'O': 2, 'Ω': 2, 'Θ': 2}
 
 def generate_colas():
+    # Generar 7 valores aleatorios
     n = np.random.randint(5, 15)
     arr = np.random.randint(1, 100, size=n).tolist()
 
@@ -118,6 +121,7 @@ while not cola.esta_vacia():
  
     
 def generate_linear_search():
+    # Generar 7 valores aleatorios
     n = np.random.randint(5, 15)
     arr = np.random.randint(1, 100, size=n).tolist()
     target = np.random.choice(arr)

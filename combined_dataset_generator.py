@@ -13,6 +13,7 @@ from dataset_generator import (
 )
 
 from bin_dataset_generator import (
+    # Importa los generadores de bin_dataset_generator.py
     generate_colas,
     generate_pilas,
     generate_arbol_binario
@@ -38,7 +39,7 @@ def generate_dataset(num_samples=1000):
     o_labels = []
     omega_labels = []
     theta_labels = []
-
+    
     for _ in range(num_samples):
         generator = np.random.choice(generators)
         code, labels = generator()

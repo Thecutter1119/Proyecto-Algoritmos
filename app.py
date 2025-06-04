@@ -225,5 +225,40 @@ def api_predict():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/ordenar", methods=["POST"])
+def ordenar_array():
+    data = request.get_json()
+    array = data.get("array", [])
+    algoritmo = data.get("algoritmo", "")
+
+    try:
+        if algoritmo == "bubble":
+            from sorting_dataset_generator import generate_bubble_sort
+            exec_code, _ = generate_bubble_sort()
+        elif algoritmo == "selection":
+            from sorting_dataset_generator import generate_selection_sort
+            exec_code, _ = generate_selection_sort()
+        elif algoritmo == "insertion":
+            from sorting_dataset_generator import generate_insertion_sort
+            exec_code, _ = generate_insertion_sort()
+        elif algoritmo == "merge":
+            from sorting_dataset_generator import generate_merge_sort
+            exec_code, _ = generate_merge_sort()
+        elif algoritmo == "quick":
+            from sorting_dataset_generator import generate_quick_sort
+            exec_code, _ = generate_quick_sort()
+        else:
+            return jsonify({"error": "Algoritmo no válido"}), 400
+
+        # Inyectar el array en el código antes de ejecutarlo
+        exec_globals = {}
+        exec(exec_code, exec_globals)
+        sorted_arr = exec_globals.get("sorted_arr", [])
+
+        return jsonify({"ordenado": sorted_arr})
+    except Exception as e:  
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__":
     app.run(debug=True)
